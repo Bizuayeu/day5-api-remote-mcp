@@ -38,7 +38,7 @@ const server = createServer((req, res) => {
   res.end(JSON.stringify({
     message: 'WebSocket MCP Server',
     status: 'ready',
-    websocket: `ws://${req.headers.host}/`,
+    websocket: `wss://${req.headers.host}/`,
     note: 'Use WebSocket connection for MCP communication'
   }));
 });
