@@ -23,11 +23,30 @@ const handleMCP = (req, res) => {
 
   // Handle GET requests for MCP discovery
   if (req.method === 'GET') {
+    // Return available tools in the GET response for Claude Web
     res.writeHead(200);
     res.end(JSON.stringify({
-      mcp_version: '2024-11-05',
+      mcp_version: '2025-06-18',
       available_methods: ['initialize', 'tools/list', 'tools/call'],
-      description: 'MCP server for Claude Web Custom Connector'
+      description: 'MCP server for Claude Web Custom Connector',
+      tools: [
+        {
+          name: 'get_time',
+          description: 'Get current time',
+          inputSchema: { type: 'object', properties: {}, required: [] }
+        },
+        {
+          name: 'echo',
+          description: 'Echo message',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              message: { type: 'string', description: 'Message to echo' }
+            },
+            required: ['message']
+          }
+        }
+      ]
     }));
     return;
   }
@@ -134,6 +153,7 @@ const handleMCP = (req, res) => {
       else if (message.method === 'notifications/initialized') {
         // This is a notification, not a request - no response needed
         console.log('✅ Client initialized notification received');
+        console.log('💡 HINT: Claude Web may not auto-request tools/list. Try manually calling tools in conversation.');
         res.writeHead(200);
         res.end();
         return;
