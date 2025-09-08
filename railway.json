@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "node simple-server.js",
+    "startCommand": "npm run build && node dist/server-websocket.js",
     "healthcheckPath": "/health"
   }
 }
