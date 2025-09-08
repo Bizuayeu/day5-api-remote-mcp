@@ -35,6 +35,7 @@ const handleMCP = (req, res) => {
   req.on('end', () => {
     try {
       const message = JSON.parse(body);
+      console.log('📨 Received MCP request:', JSON.stringify(message, null, 2));
       let response;
 
       // Initialize
@@ -44,7 +45,11 @@ const handleMCP = (req, res) => {
           id: message.id,
           result: {
             protocolVersion: '2024-11-05',
-            capabilities: { tools: {} },
+            capabilities: { 
+              tools: {
+                listChanged: true
+              }
+            },
             serverInfo: {
               name: 'simple-node-mcp',
               version: '1.0.0'
@@ -123,6 +128,7 @@ const handleMCP = (req, res) => {
         };
       }
 
+      console.log('📤 Sending MCP response:', JSON.stringify(response, null, 2));
       res.writeHead(200);
       res.end(JSON.stringify(response));
 
@@ -153,7 +159,9 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`MCP Server running on port ${PORT}`);
-  console.log(`Health: http://localhost:${PORT}/health`);
-  console.log(`MCP: http://localhost:${PORT}/mcp`);
+  console.log(`🚀 HTTP MCP Server running on port ${PORT}`);
+  console.log(`🔍 Health: http://localhost:${PORT}/health`);
+  console.log(`📡 MCP endpoint: http://localhost:${PORT}/mcp or http://localhost:${PORT}/`);
+  console.log(`🌐 Public URL: https://day5-api-remote-mcp-production.up.railway.app/`);
+  console.log(`✅ Ready for Claude Web Custom Connector!`);
 });
