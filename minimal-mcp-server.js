@@ -38,8 +38,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// GET / - Discovery endpoint
+// GET / - Discovery endpoint with tools
 app.get('/', (req, res) => {
+  console.log('📋 Providing tools via GET / endpoint');
   res.json({
     name: 'minimal-mcp-server',
     version: '1.0.0',
@@ -47,7 +48,46 @@ app.get('/', (req, res) => {
     protocol_version: '2025-06-18',
     capabilities: {
       tools: true
-    }
+    },
+    tools: [
+      {
+        name: 'hello',
+        description: 'Say hello to someone',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+              description: 'Name of the person to greet'
+            }
+          },
+          required: ['name']
+        }
+      },
+      {
+        name: 'get_time',
+        description: 'Get the current date and time',
+        inputSchema: {
+          type: 'object',
+          properties: {},
+          required: []
+        }
+      },
+      {
+        name: 'calculate',
+        description: 'Perform a simple calculation',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            expression: {
+              type: 'string',
+              description: 'Mathematical expression to evaluate (e.g., 2+2)'
+            }
+          },
+          required: ['expression']
+        }
+      }
+    ]
   });
 });
 
@@ -65,17 +105,24 @@ app.post('/', (req, res) => {
         result: {
           protocolVersion: '2025-06-18',
           capabilities: {
-            tools: {}
+            tools: {},
+            resources: {}
           },
           serverInfo: {
             name: 'minimal-mcp-server',
             version: '1.0.0'
+          },
+          _meta: {
+            tools: [
+              { name: 'hello', description: 'Say hello to someone' },
+              { name: 'get_time', description: 'Get the current date and time' },
+              { name: 'calculate', description: 'Perform a simple calculation' }
+            ]
           }
         }
       });
       
-      // Force Claude to request tools by sending a notification
-      console.log('🔔 Sending tools notification to force tools/list request');
+      console.log('✅ Initialize complete - tools included in _meta');
       break;
       
     case 'tools/list':
