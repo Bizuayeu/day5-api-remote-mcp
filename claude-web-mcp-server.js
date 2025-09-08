@@ -240,8 +240,24 @@ app.get('/', async (req, res) => {
 // Simple fallback handler for initialize on root
 app.post('/', async (req, res) => {
   console.log('📥 POST / - Direct request');
+  console.log('Request body:', JSON.stringify(req.body));
+  console.log('Request headers:', req.headers);
   
-  if (req.body && req.body.method === 'initialize') {
+  // Check if body exists
+  if (!req.body) {
+    console.error('❌ No request body');
+    res.status(400).json({
+      jsonrpc: '2.0',
+      error: {
+        code: -32700,
+        message: 'Parse error: No request body'
+      },
+      id: null
+    });
+    return;
+  }
+  
+  if (req.body.method === 'initialize') {
     // Return a simple response directing to use SSE
     res.json({
       jsonrpc: '2.0',
@@ -313,14 +329,83 @@ app.post('/', async (req, res) => {
         ]
       }
     });
+  } else if (req.body.method === 'notifications/initialized') {
+    // Handle initialized notification
+    console.log('✅ Client initialized notification received');
+    res.status(200).json({
+      jsonrpc: '2.0',
+      result: 'ok'
+    });
+  } else if (req.body.method === 'tools/call') {
+    // Handle tool calls
+    const toolName = req.body.params?.name;
+    const args = req.body.params?.arguments || {};
+    console.log(`🔧 Tool call: ${toolName} with args:`, args);
+    
+    // Simple tool implementations
+    let result;
+    if (toolName === 'get_time') {
+      const timezone = args.timezone || 'UTC';
+      const now = new Date();
+      result = {
+        content: [{
+          type: 'text',
+          text: `Current time (${timezone}): ${now.toISOString()}`
+        }]
+      };
+    } else if (toolName === 'echo') {
+      result = {
+        content: [{
+          type: 'text',
+          text: `Echo: ${args.message || 'No message'}`
+        }]
+      };
+    } else if (toolName === 'calculate') {
+      try {
+        if (!/^[0-9+\-*/.() ]+$/.test(args.expression)) {
+          throw new Error('Invalid expression');
+        }
+        const value = Function('"use strict"; return (' + args.expression + ')')();
+        result = {
+          content: [{
+            type: 'text',
+            text: `Result: ${args.expression} = ${value}`
+          }]
+        };
+      } catch (error) {
+        result = {
+          content: [{
+            type: 'text',
+            text: `Error: ${error.message}`
+          }]
+        };
+      }
+    } else {
+      res.status(400).json({
+        jsonrpc: '2.0',
+        id: req.body.id,
+        error: {
+          code: -32602,
+          message: `Unknown tool: ${toolName}`
+        }
+      });
+      return;
+    }
+    
+    res.json({
+      jsonrpc: '2.0',
+      id: req.body.id,
+      result
+    });
   } else {
+    console.error(`❌ Unknown method: ${req.body.method}`);
     res.status(400).json({
       jsonrpc: '2.0',
       error: {
-        code: -32600,
-        message: 'Invalid request'
+        code: -32601,
+        message: `Method not found: ${req.body.method}`
       },
-      id: null
+      id: req.body.id || null
     });
   }
 });
