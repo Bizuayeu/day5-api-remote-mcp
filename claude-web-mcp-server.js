@@ -210,6 +210,33 @@ app.post('/messages', async (req, res) => {
   }
 });
 
+// Handle GET requests on root (for Claude Web discovery)
+app.get('/', async (req, res) => {
+  console.log('📥 GET / - Discovery request');
+  
+  // Return server information and available methods
+  res.json({
+    mcp_version: '2025-06-18',
+    name: 'day5-remote-mcp',
+    description: 'MCP server for Claude Web Custom Connector',
+    available_methods: ['initialize', 'tools/list', 'tools/call'],
+    tools: [
+      {
+        name: 'get_time',
+        description: 'Get the current date and time'
+      },
+      {
+        name: 'echo',
+        description: 'Echo back a message'
+      },
+      {
+        name: 'calculate',
+        description: 'Perform simple mathematical calculations'
+      }
+    ]
+  });
+});
+
 // Simple fallback handler for initialize on root
 app.post('/', async (req, res) => {
   console.log('📥 POST / - Direct request');
