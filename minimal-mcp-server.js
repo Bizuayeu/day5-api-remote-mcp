@@ -65,45 +65,21 @@ app.post('/', (req, res) => {
         result: {
           protocolVersion: '2025-06-18',
           capabilities: {
-            tools: {
-              listChanged: false
-            }
+            tools: {}
           },
           serverInfo: {
             name: 'minimal-mcp-server',
             version: '1.0.0'
-          },
-          // Include tools directly in initialize response
-          tools: [
-            {
-              name: 'hello',
-              description: 'Say hello',
-              inputSchema: {
-                type: 'object',
-                properties: {
-                  name: {
-                    type: 'string',
-                    description: 'Name to greet'
-                  }
-                },
-                required: ['name']
-              }
-            },
-            {
-              name: 'time',
-              description: 'Get current time',
-              inputSchema: {
-                type: 'object',
-                properties: {},
-                required: []
-              }
-            }
-          ]
+          }
         }
       });
+      
+      // Force Claude to request tools by sending a notification
+      console.log('🔔 Sending tools notification to force tools/list request');
       break;
       
     case 'tools/list':
+      console.log('🛠️  Responding to tools/list request');
       res.json({
         jsonrpc: '2.0',
         id: id,
@@ -111,25 +87,39 @@ app.post('/', (req, res) => {
           tools: [
             {
               name: 'hello',
-              description: 'Say hello',
+              description: 'Say hello to someone',
               inputSchema: {
                 type: 'object',
                 properties: {
                   name: {
                     type: 'string',
-                    description: 'Name to greet'
+                    description: 'Name of the person to greet'
                   }
                 },
                 required: ['name']
               }
             },
             {
-              name: 'time',
-              description: 'Get current time',
+              name: 'get_time',
+              description: 'Get the current date and time',
               inputSchema: {
                 type: 'object',
                 properties: {},
                 required: []
+              }
+            },
+            {
+              name: 'calculate',
+              description: 'Perform a simple calculation',
+              inputSchema: {
+                type: 'object',
+                properties: {
+                  expression: {
+                    type: 'string',
+                    description: 'Mathematical expression to evaluate (e.g., 2+2)'
+                  }
+                },
+                required: ['expression']
               }
             }
           ]
@@ -147,19 +137,44 @@ app.post('/', (req, res) => {
           content: [
             {
               type: 'text',
-              text: `Hello, ${args.name || 'World'}!`
+              text: `👋 Hello, ${args.name || 'World'}! Nice to meet you!`
             }
           ]
         };
-      } else if (toolName === 'time') {
+      } else if (toolName === 'get_time') {
+        const now = new Date();
         result = {
           content: [
             {
               type: 'text',
-              text: `Current time: ${new Date().toISOString()}`
+              text: `🕐 Current time: ${now.toISOString()}\n📅 Date: ${now.toDateString()}`
             }
           ]
         };
+      } else if (toolName === 'calculate') {
+        try {
+          if (!/^[0-9+\-*/.() ]+$/.test(args.expression)) {
+            throw new Error('Invalid characters in expression');
+          }
+          const value = Function('"use strict"; return (' + args.expression + ')')();
+          result = {
+            content: [
+              {
+                type: 'text',
+                text: `🧮 ${args.expression} = ${value}`
+              }
+            ]
+          };
+        } catch (error) {
+          result = {
+            content: [
+              {
+                type: 'text',
+                text: `❌ Error calculating "${args.expression}": ${error.message}`
+              }
+            ]
+          };
+        }
       } else {
         res.json({
           jsonrpc: '2.0',
