@@ -58,7 +58,9 @@ const handleMessage = (message: any) => {
       result: {
         protocolVersion: '2024-11-05',
         capabilities: {
-          tools: {}
+          tools: {
+            listChanged: true
+          }
         },
         serverInfo: {
           name: 'websocket-mcp-server',
