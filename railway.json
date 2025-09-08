@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "node claude-web-mcp-server.js",
+    "startCommand": "node minimal-mcp-server.js",
     "healthcheckPath": "/health"
   }
 }
