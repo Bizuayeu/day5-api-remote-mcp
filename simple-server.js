@@ -130,6 +130,14 @@ const handleMCP = (req, res) => {
           };
         }
       }
+      // Handle notifications (no response needed)
+      else if (message.method === 'notifications/initialized') {
+        // This is a notification, not a request - no response needed
+        console.log('✅ Client initialized notification received');
+        res.writeHead(200);
+        res.end();
+        return;
+      }
       // Unknown method
       else {
         response = {
