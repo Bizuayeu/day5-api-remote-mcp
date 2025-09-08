@@ -55,11 +55,9 @@ const handleMCP = (req, res) => {
           jsonrpc: '2.0',
           id: message.id,
           result: {
-            protocolVersion: '2025-06-18',
+            protocolVersion: '2024-11-05',
             capabilities: { 
-              tools: {
-                listChanged: true
-              }
+              tools: {}
             },
             serverInfo: {
               name: 'simple-node-mcp',
