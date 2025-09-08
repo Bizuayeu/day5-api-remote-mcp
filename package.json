@@ -6,7 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "build": "tsc",
-    "start": "node simple-server.js",
+    "start": "npm run build && node dist/server-websocket.js",
     "dev": "vercel dev",
     "deploy": "vercel",
     "start:websocket": "node dist/server-websocket.js",
