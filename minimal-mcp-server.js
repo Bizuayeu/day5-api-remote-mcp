@@ -72,7 +72,33 @@ app.post('/', (req, res) => {
           serverInfo: {
             name: 'minimal-mcp-server',
             version: '1.0.0'
-          }
+          },
+          // Include tools directly in initialize response
+          tools: [
+            {
+              name: 'hello',
+              description: 'Say hello',
+              inputSchema: {
+                type: 'object',
+                properties: {
+                  name: {
+                    type: 'string',
+                    description: 'Name to greet'
+                  }
+                },
+                required: ['name']
+              }
+            },
+            {
+              name: 'time',
+              description: 'Get current time',
+              inputSchema: {
+                type: 'object',
+                properties: {},
+                required: []
+              }
+            }
+          ]
         }
       });
       break;
