@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "node simple-server.js",
+    "startCommand": "node proper-mcp-server.js",
     "healthcheckPath": "/health"
   }
 }

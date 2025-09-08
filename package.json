@@ -15,22 +15,30 @@
     "test": "echo \"Day5: Remote MCP Server test\" && npm run build"
   },
   "dependencies": {
-    "googleapis": "^128.0.0",
-    "google-auth-library": "^9.4.0",
-    "zod": "^3.23.8",
+    "@modelcontextprotocol/sdk": "^1.17.5",
     "cors": "^2.8.5",
-    "ws": "^8.14.2"
+    "express": "^5.1.0",
+    "google-auth-library": "^9.4.0",
+    "googleapis": "^128.0.0",
+    "ws": "^8.14.2",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/node": "^20.11.17",
+    "@netlify/functions": "^2.4.0",
     "@types/cors": "^2.8.17",
+    "@types/node": "^20.11.17",
     "@types/ws": "^8.5.8",
     "@vercel/node": "^3.0.21",
-    "@netlify/functions": "^2.4.0",
     "typescript": "^5.3.3",
     "vercel": "^32.5.0"
   },
-  "keywords": ["remote-mcp", "google-docs", "episodic-rag", "vercel", "claude-web"],
+  "keywords": [
+    "remote-mcp",
+    "google-docs",
+    "episodic-rag",
+    "vercel",
+    "claude-web"
+  ],
   "author": "Weave",
   "license": "MIT"
 }
