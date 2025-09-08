@@ -11,13 +11,24 @@ const PORT = process.env.PORT || 3000;
 const handleMCP = (req, res) => {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Content-Type', 'application/json');
 
   if (req.method === 'OPTIONS') {
     res.writeHead(200);
     res.end();
+    return;
+  }
+
+  // Handle GET requests for MCP discovery
+  if (req.method === 'GET') {
+    res.writeHead(200);
+    res.end(JSON.stringify({
+      mcp_version: '2024-11-05',
+      available_methods: ['initialize', 'tools/list', 'tools/call'],
+      description: 'MCP server for Claude Web Custom Connector'
+    }));
     return;
   }
 
@@ -145,6 +156,7 @@ const handleMCP = (req, res) => {
 
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
+  console.log(`📥 ${req.method} ${parsedUrl.pathname} from ${req.headers['user-agent']}`);
 
   if (parsedUrl.pathname === '/health') {
     res.setHeader('Content-Type', 'application/json');
