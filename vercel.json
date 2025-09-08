@@ -1,0 +1,14 @@
+{
+  "outputDirectory": "public",
+  "functions": {
+    "api/mcp.ts": {
+      "maxDuration": 10
+    },
+    "api/mcp-ws.ts": {
+      "maxDuration": 10
+    },
+    "api/health.ts": {
+      "maxDuration": 5
+    }
+  }
+}

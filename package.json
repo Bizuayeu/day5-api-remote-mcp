@@ -1,0 +1,36 @@
+{
+  "name": "day5-remote-mcp-episodic",
+  "version": "1.0.0",
+  "description": "Day 5: Remote MCP Server for EpisodicRAG Google Docs - Vercel Deployment",
+  "main": "api/mcp.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "start": "node simple-server.js",
+    "dev": "vercel dev",
+    "deploy": "vercel",
+    "start:websocket": "node dist/server-websocket.js",
+    "dev:websocket": "tsc && node dist/server-websocket.js",
+    "start:simple": "node simple-server.js",
+    "test": "echo \"Day5: Remote MCP Server test\" && npm run build"
+  },
+  "dependencies": {
+    "googleapis": "^128.0.0",
+    "google-auth-library": "^9.4.0",
+    "zod": "^3.23.8",
+    "cors": "^2.8.5",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "@types/cors": "^2.8.17",
+    "@types/ws": "^8.5.8",
+    "@vercel/node": "^3.0.21",
+    "@netlify/functions": "^2.4.0",
+    "typescript": "^5.3.3",
+    "vercel": "^32.5.0"
+  },
+  "keywords": ["remote-mcp", "google-docs", "episodic-rag", "vercel", "claude-web"],
+  "author": "Weave",
+  "license": "MIT"
+}
