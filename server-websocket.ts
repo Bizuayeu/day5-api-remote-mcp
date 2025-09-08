@@ -34,20 +34,70 @@ const server = createServer((req, res) => {
     return;
   }
 
-  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.writeHead(200, { 
+    'Content-Type': 'application/json',
+    'Upgrade': 'websocket',
+    'Connection': 'Upgrade'
+  });
   res.end(JSON.stringify({
     message: 'WebSocket MCP Server',
     status: 'ready',
     websocket: `wss://${req.headers.host}/`,
-    note: 'Use WebSocket connection for MCP communication'
+    protocols: ['mcp'],
+    note: 'Use WebSocket connection for MCP communication. Send Upgrade header to establish WebSocket connection.'
   }));
 });
 
-// WebSocket server
+// WebSocket server - support multiple paths
 const wss = new WebSocketServer({ 
   server,
   path: '/'
 });
+
+// Additional WebSocket server for /ws path
+const wss2 = new WebSocketServer({
+  server,
+  path: '/ws'
+});
+
+const setupWebSocketHandlers = (wss: any, pathName: string) => {
+  wss.on('connection', (ws: any, req: any) => {
+    console.log(`🔗 WebSocket client connected to ${pathName} from:`, req.socket.remoteAddress);
+    console.log('🔍 Headers:', req.headers);
+    
+    ws.on('message', (data: any) => {
+      try {
+        const message = JSON.parse(data.toString());
+        console.log('📨 Received MCP message:', JSON.stringify(message, null, 2));
+        
+        const response = handleMessage(message);
+        console.log('📤 Sending MCP response:', JSON.stringify(response, null, 2));
+        ws.send(JSON.stringify(response));
+        
+      } catch (error) {
+        console.error('❌ Error processing message:', error);
+        const errorResponse = {
+          jsonrpc: '2.0',
+          id: null,
+          error: {
+            code: -32700,
+            message: 'Parse error'
+          }
+        };
+        console.log('📤 Sending error response:', errorResponse);
+        ws.send(JSON.stringify(errorResponse));
+      }
+    });
+
+    ws.on('close', () => {
+      console.log(`🔌 WebSocket client disconnected from ${pathName}`);
+    });
+    
+    ws.on('error', (error: any) => {
+      console.error(`🚨 WebSocket error on ${pathName}:`, error);
+    });
+  });
+};
 
 // MCP message handlers
 const handleMessage = (message: any) => {
@@ -297,45 +347,14 @@ const handleMessage = (message: any) => {
   };
 };
 
-wss.on('connection', (ws, req) => {
-  console.log('🔗 WebSocket client connected from:', req.socket.remoteAddress);
-  console.log('🔍 Headers:', req.headers);
-  
-  ws.on('message', (data) => {
-    try {
-      const message = JSON.parse(data.toString());
-      console.log('📨 Received MCP message:', JSON.stringify(message, null, 2));
-      
-      const response = handleMessage(message);
-      console.log('📤 Sending MCP response:', JSON.stringify(response, null, 2));
-      ws.send(JSON.stringify(response));
-      
-    } catch (error) {
-      console.error('❌ Error processing message:', error);
-      const errorResponse = {
-        jsonrpc: '2.0',
-        id: null,
-        error: {
-          code: -32700,
-          message: 'Parse error'
-        }
-      };
-      console.log('📤 Sending error response:', errorResponse);
-      ws.send(JSON.stringify(errorResponse));
-    }
-  });
-
-  ws.on('close', () => {
-    console.log('🔌 WebSocket client disconnected');
-  });
-  
-  ws.on('error', (error) => {
-    console.error('🚨 WebSocket error:', error);
-  });
-});
+// Setup handlers for both WebSocket endpoints
+setupWebSocketHandlers(wss, '/');
+setupWebSocketHandlers(wss2, '/ws');
 
 server.listen(port, () => {
-  console.log(`WebSocket MCP server listening on port ${port}`);
-  console.log(`Health check: http://localhost:${port}/health`);
-  console.log(`WebSocket: ws://localhost:${port}/`);
+  console.log(`🚀 WebSocket MCP server listening on port ${port}`);
+  console.log(`🔍 Health check: http://localhost:${port}/health`);
+  console.log(`🔗 WebSocket endpoint: ws://localhost:${port}/`);
+  console.log(`🌐 Public WebSocket: wss://day5-api-remote-mcp-production.up.railway.app/`);
+  console.log(`🎯 Ready for MCP Custom Connector connections!`);
 });
