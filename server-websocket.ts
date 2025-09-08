@@ -297,32 +297,40 @@ const handleMessage = (message: any) => {
   };
 };
 
-wss.on('connection', (ws) => {
-  console.log('WebSocket client connected');
+wss.on('connection', (ws, req) => {
+  console.log('🔗 WebSocket client connected from:', req.socket.remoteAddress);
+  console.log('🔍 Headers:', req.headers);
   
   ws.on('message', (data) => {
     try {
       const message = JSON.parse(data.toString());
-      console.log('Received:', message);
+      console.log('📨 Received MCP message:', JSON.stringify(message, null, 2));
       
       const response = handleMessage(message);
+      console.log('📤 Sending MCP response:', JSON.stringify(response, null, 2));
       ws.send(JSON.stringify(response));
       
     } catch (error) {
-      console.error('Error processing message:', error);
-      ws.send(JSON.stringify({
+      console.error('❌ Error processing message:', error);
+      const errorResponse = {
         jsonrpc: '2.0',
         id: null,
         error: {
           code: -32700,
           message: 'Parse error'
         }
-      }));
+      };
+      console.log('📤 Sending error response:', errorResponse);
+      ws.send(JSON.stringify(errorResponse));
     }
   });
 
   ws.on('close', () => {
-    console.log('WebSocket client disconnected');
+    console.log('🔌 WebSocket client disconnected');
+  });
+  
+  ws.on('error', (error) => {
+    console.error('🚨 WebSocket error:', error);
   });
 });
 
