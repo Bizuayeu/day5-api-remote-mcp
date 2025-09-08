@@ -2,7 +2,7 @@
 node_modules/
 
 # Build outputs
-dist/
+# dist/ # Allow dist for Railway deployment
 .vercel/
 
 # Environment variables
